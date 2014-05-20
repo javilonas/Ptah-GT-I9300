@@ -1,0 +1,36 @@
+#!/sbin/busybox sh
+
+if [ -z $2 ];then
+	if [ -z $zram_size ]; then
+		zram_size=`cat /sys/devices/virtual/block/zram0/disksize`
+		zram_size=`expr $zram_size \/ 1024 \/ 1024`
+		echo zram_size=$zram_size >> $DEFAULT_PROFILE
+	fi
+else
+	zram_size=$2
+	/sbin/busybox swapoff /dev/block/zram0 > /dev/null 2>&1
+	echo 1 > /sys/devices/virtual/block/zram0/reset
+        /sbin/busybox swapoff /dev/block/zram1 > /dev/null 2>&1
+	echo 1 > /sys/devices/virtual/block/zram1/reset
+        /sbin/busybox swapoff /dev/block/zram2 > /dev/null 2>&1
+	echo 1 > /sys/devices/virtual/block/zram2/reset
+        /sbin/busybox swapoff /dev/block/zram3 > /dev/null 2>&1
+	echo 1 > /sys/devices/virtual/block/zram3/reset
+
+	if [ $zram_size -gt 0 ]; then
+	echo `expr $zram_size \* 1024 \* 1024` > /sys/devices/virtual/block/zram0/disksize
+	/sbin/busybox mkswap /dev/block/zram0 > /dev/null 2>&1
+	/sbin/busybox swapon /dev/block/zram0 > /dev/null 2>&1
+	echo `expr $zram_size \* 1024 \* 1024` > /sys/devices/virtual/block/zram1/disksize
+	/sbin/busybox mkswap /dev/block/zram1 > /dev/null 2>&1
+	/sbin/busybox swapon /dev/block/zram1 > /dev/null 2>&1
+	echo `expr $zram_size \* 1024 \* 1024` > /sys/devices/virtual/block/zram2/disksize
+	/sbin/busybox mkswap /dev/block/zram2 > /dev/null 2>&1
+	/sbin/busybox swapon /dev/block/zram2 > /dev/null 2>&1
+	echo `expr $zram_size \* 1024 \* 1024` > /sys/devices/virtual/block/zram3/disksize
+	/sbin/busybox mkswap /dev/block/zram3 > /dev/null 2>&1
+	/sbin/busybox swapon /dev/block/zram3 > /dev/null 2>&1
+	fi
+fi
+
+echo $zram_size

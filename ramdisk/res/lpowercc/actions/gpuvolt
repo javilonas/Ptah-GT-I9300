@@ -1,0 +1,92 @@
+#!/sbin/busybox sh
+
+if [[ ! -z $2 ]]; then
+    filename=$(basename $2)
+fi
+
+if [[ ! -z $3 ]]; then
+  evalcmd='eval "$filename=$3"'
+  eval $evalcmd
+fi
+
+gpuvolt_predef="0"
+gpuvolt_find=`grep "gpuvolt_predef" $DEFAULT_PROFILE | cut -d'=' -f2`
+
+write_value() {  
+  echo "$1=$2" >> $DEFAULT_PROFILE
+}
+
+edit_value() {
+  g_find=`grep $1=.* $DEFAULT_PROFILE`
+    
+  if [[ -z $g_find ]]; then
+    write_value $1 $2
+  else
+    sed -i "s/$1=[^ ]*/$1=$2/" $DEFAULT_PROFILE 
+  fi
+}
+
+write_values(){
+  edit_value gpu_control_uV $gpu_control_uV
+  edit_value gpuvolt_predef $gpuvolt_predef 
+
+  echo $gpu_control_uV >/sys/class/misc/gpu_control/gpu_voltage_control
+}
+
+case "$gpuvoltpredef" in
+  0)
+    #Off (default)
+    gpu_control_uV="875000 900000 950000 1025000 1075000"
+    gpuvolt_predef="0"
+    write_values
+    ;;
+  1)
+    # -25
+    gpu_control_uV="850000 875000 925000 1000000 1050000"
+    gpuvolt_predef="1"
+    write_values
+    ;;
+  2)
+    # -50
+    gpu_control_uV="825000 850000 900000 975000 1025000"
+    gpuvolt_predef="2"
+    write_values
+    ;;
+  3)
+    # -75
+    gpu_control_uV="800000 825000 875000 950000 1000000"
+    gpuvolt_predef="3"
+    write_values
+    ;;
+  4)
+    # -100
+    gpu_control_uV="775000 800000 850000 925000 975000"
+    gpuvolt_predef="4"
+    write_values
+    ;;
+  5)
+    # +25
+    gpu_control_uV="900000 925000 975000 1050000 1100000"
+    gpuvolt_predef="5"
+    write_values
+    ;;
+  6)
+    # +50
+    gpu_control_uV="925000 950000 1000000 1075000 1125000"
+    gpuvolt_predef="6"
+    write_values
+    ;;
+  7)
+    # +75
+    gpu_control_uV="950000 975000 1025000 1100000 1150000"
+    gpuvolt_predef="7"
+    write_values
+    ;;
+  *)
+    if [[ ! -z $gpuvolt_find ]]; then
+      gpuvolt_predef="$gpuvolt_find"
+    fi 
+    ;;
+esac;
+
+eval echo $gpuvolt_predef

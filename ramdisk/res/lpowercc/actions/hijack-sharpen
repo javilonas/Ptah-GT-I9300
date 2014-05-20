@@ -1,0 +1,62 @@
+#!/sbin/busybox sh
+
+if [[ ! -z $2 ]]; then
+    filename=$(basename $2)
+fi
+
+if [[ ! -z $3 ]]; then
+  evalcmd='eval "$filename=$3"'
+  eval $evalcmd
+fi
+
+hijack-sharpen_predef="0"
+hijack-sharpen_find=`grep "hijack-sharpen_predef" $DEFAULT_PROFILE | cut -d'=' -f2`
+
+write_value() {  
+  echo "$1=$2" >> $DEFAULT_PROFILE
+}
+
+edit_value() {
+  g_find=`grep $1=.* $DEFAULT_PROFILE`
+    
+  if [[ -z $g_find ]]; then
+    write_value $1 $2
+  else
+    sed -i "s/$1=[^ ]*/$1=$2/" $DEFAULT_PROFILE 
+  fi
+}
+
+write_values(){
+  edit_value hijack-sharpen_sharpen $hijack-sharpen_sharpen
+  edit_value hijack-sharpen_hijack $hijack-sharpen_hijack
+  edit_value hijack-sharpen_predef $hijack-sharpen_predef 
+
+
+  echo $hijack-sharpen_sharpen > /sys/class/mdnie/mdnie/sharpen
+  echo $hijack-sharpen_hijack > /sys/class/mdnie/mdnie/hijack
+
+}
+
+case "$hijack-sharpenpredef" in
+  0)
+    #Desactivado hijack / Activado sharpen
+    hijack-sharpen_hijack="0"
+    hijack-sharpen_sharpen="1"
+    hijack-sharpen_predef="0"
+    write_values
+    ;;
+  1)
+    #Activado hijack / Desactivado sharpen
+    hijack-sharpen_hijack="1"
+    hijack-sharpen_sharpen="0"
+    hijack-sharpen_predef="1"
+    write_values
+    ;;
+  *)
+    if [[ ! -z $hijack-sharpen_find ]]; then
+      hijack-sharpen_predef="$hijack-sharpen_find"
+    fi 
+    ;;
+esac;
+
+eval echo $hijack-sharpen_predef

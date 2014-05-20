@@ -1,0 +1,92 @@
+#!/sbin/busybox sh
+
+if [[ ! -z $2 ]]; then
+    filename=$(basename $2)
+fi
+
+if [[ ! -z $3 ]]; then
+  evalcmd='eval "$filename=$3"'
+  eval $evalcmd
+fi
+
+gpufreq_predef="0"
+gpufreq_find=`grep "gpufreq_predef" $DEFAULT_PROFILE | cut -d'=' -f2`
+
+write_value() {  
+  echo "$1=$2" >> $DEFAULT_PROFILE
+}
+
+edit_value() {
+  g_find=`grep $1=.* $DEFAULT_PROFILE`
+    
+  if [[ -z $g_find ]]; then
+    write_value $1 $2
+  else
+    sed -i "s/$1=[^ ]*/$1=$2/" $DEFAULT_PROFILE 
+  fi
+}
+
+write_values(){
+  edit_value gpu_control_freq $gpu_control_freq
+  edit_value gpufreq_predef $gpufreq_predef 
+
+  echo $gpu_control_freq >/sys/class/misc/gpu_control/gpu_clock_control
+}
+
+case "$gpufreqpredef" in
+  0)
+    # 160/266/350/440/533 (default)
+    gpu_control_freq="160 266 350 440 533"
+    gpufreq_predef="0"
+    write_values
+    ;;
+  1)
+    # 160/266/350/400/440
+    gpu_control_freq="160 266 350 400 440"
+    gpufreq_predef="1"
+    write_values
+    ;;
+  2)
+    # 266/350/440/533/640
+    gpu_control_freq="266 350 440 533 640"
+    gpufreq_predef="2"
+    write_values
+    ;;
+  3)
+    # 350/440/533/640/666
+    gpu_control_freq="350 440 533 640 666"
+    gpufreq_predef="3"
+    write_values
+    ;;
+  4)
+    # 440/533/600/640/700
+    gpu_control_freq="440 533 600 640 700"
+    gpufreq_predef="4"
+    write_values
+    ;;
+  5)
+    # 533/600/640/700/733
+    gpu_control_freq="533 600 640 700 733"
+    gpufreq_predef="5"
+    write_values
+    ;;
+  6)
+    # 600/640/700/733/750
+    gpu_control_freq="600 640 700 733 750"
+    gpufreq_predef="6"
+    write_values
+    ;;
+  7)
+    # 640/700/733/750/800
+    gpu_control_freq="640 700 733 750 800"
+    gpufreq_predef="7"
+    write_values
+    ;;
+  *)
+    if [[ ! -z $gpufreq_find ]]; then
+      gpufreq_predef="$gpufreq_find"
+    fi 
+    ;;
+esac;
+
+eval echo $gpufreq_predef
