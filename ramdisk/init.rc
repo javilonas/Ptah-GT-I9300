@@ -950,7 +950,6 @@ service drsd /system/bin/drsd
     class main
     socket drsd stream 600 system system
 
-
 service lpcc-init /sbin/lpcc-init.sh
     class core
     user root

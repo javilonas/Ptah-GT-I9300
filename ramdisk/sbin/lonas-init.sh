@@ -57,6 +57,9 @@ fi
 # Iniciar Tweaks Lonas_KL
 /res/ext/tweaks.sh
 
+# Iniciar zswap
+/res/ext/zswap.sh
+
 # Iniciar Sensor
 /res/ext/sensors.sh
 
@@ -77,9 +80,6 @@ done
 
 # Iniciar efs_backup
 /res/ext/efs_backup.sh
-
-# Iniciar RAMCHECK
-# /res/ext/ramcheck.sh
 
 # Iniciar Liberar Memoria
 /res/ext/libera_ram.sh
