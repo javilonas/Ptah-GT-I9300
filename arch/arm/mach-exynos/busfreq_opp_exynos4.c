@@ -113,8 +113,11 @@ struct opp *step_down(struct busfreq_data *data, int step)
 
 	return opp;
 }
-
+#ifdef CONFIG_CPU_EXYNOS4212
+static unsigned int _target(struct busfreq_data *data, struct opp *new, int margin)
+#else
 static unsigned int _target(struct busfreq_data *data, struct opp *new)
+#endif
 {
 	unsigned int index;
 	unsigned int voltage;
@@ -133,7 +136,11 @@ static unsigned int _target(struct busfreq_data *data, struct opp *new)
 	if (newfreq > currfreq) {
 		regulator_set_voltage(data->vdd_mif, voltage,
 				voltage + 25000);
+	#ifdef CONFIG_CPU_EXYNOS4212
+		voltage = data->get_int_volt(index) + margin;
+	#else
 		voltage = data->get_int_volt(index);
+	#endif
 		regulator_set_voltage(data->vdd_int, voltage,
 				voltage + 25000);
 		if (data->busfreq_prepare)
@@ -149,7 +156,11 @@ static unsigned int _target(struct busfreq_data *data, struct opp *new)
 			data->busfreq_post(index);
 		regulator_set_voltage(data->vdd_mif, voltage,
 				voltage + 25000);
+		#ifdef CONFIG_CPU_EXYNOS4212
+		voltage = data->get_int_volt(index) + margin;
+		#else
 		voltage = data->get_int_volt(index);
+		#endif
 		regulator_set_voltage(data->vdd_int, voltage,
 				voltage + 25000);
 	}
@@ -186,7 +197,11 @@ static void exynos_busfreq_timer(struct work_struct *work)
 		}
 	}
 
-	index = _target(data, opp);
+	#ifdef CONFIG_CPU_EXYNOS4212
+		index= _target(data, opp, 0);
+	#else
+		index = _target(data, opp);
+	#endif
 
 	update_busfreq_stat(data, index);
 	mutex_unlock(&busfreq_lock);
@@ -203,7 +218,11 @@ static int exynos_buspm_notifier_event(struct notifier_block *this,
 	switch (event) {
 	case PM_SUSPEND_PREPARE:
 		mutex_lock(&busfreq_lock);
-		_target(data, data->max_opp);
+		#ifdef CONFIG_CPU_EXYNOS4212
+			_target(data, data->max_opp,50000);
+		#else
+			_target(data, data->max_opp);
+		#endif
 		data->use = false;
 		mutex_unlock(&busfreq_lock);
 		return NOTIFY_OK;
@@ -707,7 +726,11 @@ void exynos_request_apply(unsigned long freq)
 	if (opp_get_freq(bus_ctrl.data->curr_opp) >= opp_get_freq(opp))
 		goto out;
 
-	index = _target(bus_ctrl.data, opp);
+	#ifdef CONFIG_CPU_EXYNOS4212
+		index = _target(bus_ctrl.data, opp, 0);
+	#else
+		index = _target(bus_ctrl.data, opp);
+	#endif
 
 	update_busfreq_stat(bus_ctrl.data, index);
 

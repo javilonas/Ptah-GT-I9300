@@ -364,6 +364,9 @@ validate_event(struct cpu_hw_events *cpuc,
 	if (is_software_event(event))
 		return 1;
 
+	if (is_software_event(event))
+		return 1;
+
 	if (event->pmu != &pmu || event->state <= PERF_EVENT_STATE_OFF)
 		return 1;
 

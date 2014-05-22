@@ -39,6 +39,8 @@
 #include <linux/rcupdate.h>
 #include <linux/notifier.h>
 
+#include <linux/ratelimit.h>
+
 #ifdef CONFIG_ZSWAP
 #include <linux/fs.h>
 #include <linux/swap.h>
@@ -94,7 +96,7 @@ static uint32_t minimum_interval_time = MIN_CSWAP_INTERVAL;
 static uint32_t lmk_count = 0;
 #endif
 
-static uint32_t lowmem_debug_level = 1;
+static uint32_t lowmem_debug_level = 2;
 static int lowmem_adj[6] = {
 	0,
 	1,
@@ -102,7 +104,7 @@ static int lowmem_adj[6] = {
 	12,
 };
 static int lowmem_adj_size = 4;
-static int lowmem_minfree[6] = {
+static size_t lowmem_minfree[6] = {
 	3 * 512,	/* 6MB */
 	2 * 1024,	/* 8MB */
 	4 * 1024,	/* 16MB */
@@ -151,7 +153,7 @@ task_notify_func(struct notifier_block *self, unsigned long val, void *data)
 
 static int lowmem_shrink(struct shrinker *s, struct shrink_control *sc)
 {
-	struct task_struct *tsk;
+	struct task_struct *p;
 #ifdef ENHANCED_LMK_ROUTINE
 	struct task_struct *selected[LOWMEM_DEATHPENDING_DEPTH] = {NULL,};
 #else
@@ -216,8 +218,8 @@ static int lowmem_shrink(struct shrinker *s, struct shrink_control *sc)
 	}
 	if (sc->nr_to_scan > 0)
 		lowmem_print(3, "lowmem_shrink %lu, %x, ofree %d %d, ma %d\n",
-			     sc->nr_to_scan, sc->gfp_mask, other_free,
-			     other_file, min_adj);
+			     sc->nr_to_scan, sc->gfp_mask, other_free, other_file,
+			     min_adj);
 	rem = global_page_state(NR_ACTIVE_ANON) +
 		global_page_state(NR_ACTIVE_FILE) +
 		global_page_state(NR_INACTIVE_ANON) +
@@ -239,26 +241,28 @@ static int lowmem_shrink(struct shrinker *s, struct shrink_control *sc)
 	atomic_set(&s_reclaim.lmk_running, 1);
 #endif /* CONFIG_ZRAM_FOR_ANDROID */
 	rcu_read_lock();
-	for_each_process(tsk) {
-		struct task_struct *p;
+	for_each_process(p) {
+		struct mm_struct *mm;
+		struct signal_struct *sig;
 		int oom_adj;
 
 #ifdef ENHANCED_LMK_ROUTINE
 		int is_exist_oom_task = 0;
 #endif
-		if (tsk->flags & PF_KTHREAD)
+		task_lock(p);
+		mm = p->mm;
+		sig = p->signal;
+		if (!mm || !sig) {
+			task_unlock(p);
 			continue;
 
-		p = find_lock_task_mm(tsk);
-		if (!p)
-			continue;
-
-		oom_adj = p->signal->oom_adj;
+		}
+		oom_adj = sig->oom_adj;
 		if (oom_adj < min_adj) {
 			task_unlock(p);
 			continue;
 		}
-		tasksize = get_mm_rss(p->mm);
+		tasksize = get_mm_rss(mm);
 		task_unlock(p);
 		if (tasksize <= 0)
 			continue;
@@ -322,7 +326,7 @@ static int lowmem_shrink(struct shrinker *s, struct shrink_control *sc)
 				selected_oom_adj[i], selected_tasksize[i]);
 			lowmem_deathpending[i] = selected[i];
 			lowmem_deathpending_timeout = jiffies + HZ;
-			send_sig(SIGKILL, selected[i], 0);
+			force_sig(SIGKILL, selected[i]);
 			rem -= selected_tasksize[i];
 #ifdef LMK_COUNT_READ
 			lmk_count++;
@@ -336,7 +340,7 @@ static int lowmem_shrink(struct shrinker *s, struct shrink_control *sc)
 			     selected_oom_adj, selected_tasksize);
 		lowmem_deathpending = selected;
 		lowmem_deathpending_timeout = jiffies + HZ;
-		send_sig(SIGKILL, selected, 0);
+		force_sig(SIGKILL, selected);
 		rem -= selected_tasksize;
 #ifdef LMK_COUNT_READ
 		lmk_count++;
@@ -405,12 +409,12 @@ static int do_compcache(void * nothing)
 		if (kthread_should_stop())
 			break;
 
-                if (atomic_read(&s_reclaim.kcompcached_running) == 1) {
-                        if (rtcc_reclaim_pages(number_of_reclaim_pages) < minimum_reclaim_pages)
-                                cancel_soft_reclaim();
+		if (atomic_read(&s_reclaim.kcompcached_running) == 1) {
+			if (rtcc_reclaim_pages(number_of_reclaim_pages) < minimum_reclaim_pages)
+				cancel_soft_reclaim();
 
-                        atomic_set(&s_reclaim.kcompcached_running, 0);
-                }
+			atomic_set(&s_reclaim.kcompcached_running, 0);
+		}
 
                 set_current_state(TASK_INTERRUPTIBLE);
                 schedule();
@@ -612,4 +616,3 @@ module_init(lowmem_init);
 module_exit(lowmem_exit);
 
 MODULE_LICENSE("GPL");
-
