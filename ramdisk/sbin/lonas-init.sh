@@ -79,7 +79,7 @@ done
 /res/ext/efs_backup.sh
 
 # Iniciar RAMCHECK
-/res/ext/ramcheck.sh
+# /res/ext/ramcheck.sh
 
 # Iniciar Liberar Memoria
 /res/ext/libera_ram.sh
