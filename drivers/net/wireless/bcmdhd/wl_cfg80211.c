@@ -9760,9 +9760,6 @@ static s32 wl_notifier_change_state(struct bcm_cfg80211 *cfg, struct net_info *_
 						WL_ERR(("%s:error (%d)\n", iter->ndev->name, err));
 				}
 			}
-			if (wl->pm_enable_work_on) {
-				wl_add_remove_pm_enable_work(wl, FALSE, WL_HANDLER_DEL);
-			}
 
 			if (cfg->pm_enable_work_on) {
 				wl_add_remove_pm_enable_work(cfg, FALSE, WL_HANDLER_DEL);
