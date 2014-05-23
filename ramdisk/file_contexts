@@ -40,6 +40,7 @@
 /dev/block(/.*)?	u:object_r:block_device:s0
 /dev/block/loop[0-9]*	u:object_r:loop_device:s0
 /dev/block/ram[0-9]*	u:object_r:ram_device:s0
+/dev/block/mtdblock5	u:object_r:radio_device:s0
 /dev/bus/usb(.*)?       u:object_r:usb_device:s0
 /dev/cam		u:object_r:camera_device:s0
 /dev/console		u:object_r:console_device:s0
@@ -61,15 +62,19 @@
 /dev/mpu		u:object_r:gps_device:s0
 /dev/mpuirq		u:object_r:gps_device:s0
 /dev/mtd(/.*)?		u:object_r:mtd_device:s0
+/dev/mtd/mtd5		u:object_r:radio_device:s0
+/dev/mtd/mtd5ro		u:object_r:radio_device:s0
 /dev/mtp_usb		u:object_r:mtp_device:s0
 /dev/pn544		u:object_r:nfc_device:s0
 /dev/ppp		u:object_r:ppp_device:s0
 /dev/ptmx		u:object_r:ptmx_device:s0
+/dev/pvrsrvkm		u:object_r:powervr_device:s0
 /dev/qemu_.*		u:object_r:qemu_device:s0
 /dev/kmsg		u:object_r:kmsg_device:s0
 /dev/null		u:object_r:null_device:s0
-/dev/nvmap              u:object_r:nv_device:s0
-/dev/nvhost-.*          u:object_r:nv_device:s0
+/dev/nvhdcp1		u:object_r:video_device:s0
+/dev/nvmap		u:object_r:nv_device:s0
+/dev/nvhost-.*		u:object_r:nv_device:s0
 /dev/random		u:object_r:random_device:s0
 /dev/rpmsg-omx[0-9]	u:object_r:rpmsg_device:s0
 /dev/rproc_user	u:object_r:rpmsg_device:s0
@@ -79,8 +84,11 @@
 /dev/snd(/.*)?		u:object_r:audio_device:s0
 /dev/snd/pcmC[0-9]*D[0-9]*c u:object_r:audio_capture_device:s0
 /dev/socket(/.*)?		u:object_r:socket_device:s0
+/dev/socket		u:object_r:socket_device:s0
 /dev/socket/adbd	u:object_r:adbd_socket:s0
 /dev/socket/bluetooth	u:object_r:bluetooth_socket:s0
+/dev/socket/dbus_bluetooth	u:object_r:bluetooth_socket:s0
+/dev/socket/dbus	u:object_r:dbus_socket:s0
 /dev/socket/dnsproxyd	u:object_r:dnsproxyd_socket:s0
 /dev/socket/gps		u:object_r:gps_socket:s0
 /dev/socket/installd	u:object_r:installd_socket:s0
@@ -104,7 +112,7 @@
 /dev/ttyS[0-9]*		u:object_r:serial_device:s0
 /dev/tun		u:object_r:tun_device:s0
 /dev/uhid		u:object_r:uhid_device:s0
-/dev/uinput		u:object_r:uhid_device:s0
+/dev/uinput		u:object_r:input_device:s0
 /dev/urandom		u:object_r:urandom_device:s0
 /dev/usb_accessory	u:object_r:usbaccessory_device:s0
 /dev/vcs[0-9a-z]*	u:object_r:vcs_device:s0
@@ -183,6 +191,7 @@
 /data/misc/systemkeys(/.*)?	u:object_r:systemkeys_data_file:s0
 /data/misc/wifi(/.*)?		u:object_r:wifi_data_file:s0
 /data/misc/camera(/.*)?	u:object_r:camera_data_file:s0
+/data/misc/camera(/.*)?	u:object_r:camera_calibration_file:s0
 /data/misc/dhcp(/.*)?           u:object_r:dhcp_data_file:s0
 /data/misc/adb(/.*)?            u:object_r:adb_keys_file:s0
 # App sandboxes
@@ -209,6 +218,7 @@
 # sysfs files
 #
 /sys/qemu_trace(/.*)?	--	u:object_r:sysfs_writable:s0
+/sys/qemu_trace/process_name	--	u:object_r:sysfs_writable:s0
 /sys/devices/platform/nfc-power/nfc_power -- u:object_r:sysfs_nfc_power_writable:s0
 /sys/class/rfkill/rfkill[0-9]*/state -- u:object_r:sysfs_bluetooth_writable:s0
 /sys/class/rfkill/rfkill[0-9]*/type -- u:object_r:sysfs_bluetooth_writable:s0

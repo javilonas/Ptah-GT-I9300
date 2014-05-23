@@ -8,7 +8,7 @@ on early-init
     mkdir /tombstones
 
 on init
-
+    chmod 0701 /mnt/media_rw
     # See storage config details at http://source.android.com/tech/storage/
     mkdir /mnt/media_rw/extSdCard 0700 media_rw media_rw
     mkdir /mnt/media_rw/UsbDriveA 0700 media_rw media_rw
@@ -20,7 +20,6 @@ on init
 
     # See storage config details at http://source.android.com/tech/storage/
     mkdir /mnt/shell/emulated 0700 shell shell
-    mkdir /mnt/shell/container 0700 system system
     mkdir /storage/emulated 0555 root root
 
     export EXTERNAL_STORAGE /storage/emulated/legacy
@@ -70,7 +69,7 @@ on init
 
 on post-fs-data
     # we will remap this as /storage/sdcard with the sdcard fuse tool
-    mkdir /data/media 0770 media_rw media_rw
+    mkdir /data/media 0775 media_rw media_rw
     chown media_rw media_rw /data/media
 
     # make directory for DRM
@@ -99,11 +98,10 @@ on post-fs-data
     mkdir /efs/wifi 0775 radio system
     mkdir /efs/bluetooth 0775 radio system
     mkdir /efs/imei 0775 radio system
+    chmod 0660 /data/misc/wifi/wpa_supplicant.conf
     mkdir /system/etc/wifi 0775 wifi wifi
     mkdir /data/misc/wifi/sockets 0770 wifi wifi
     mkdir /data/misc/dhcp 0775 dhcp dhcp
-    chmod 0660 /data/misc/wifi/wpa_supplicant.conf
-
     chown dhcp dhcp /data/misc/dhcp
     chown system system /efs/wifi/.mac.info
     chmod 0664 /efs/wifi/.mac.info
@@ -141,7 +139,7 @@ on post-fs-data
 
 on boot
     mount debugfs /sys/kernel/debug /sys/kernel/debug
-#	write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor performance
+	write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor performance
 
 # for AT distributor
     chown system radio /sys/module/cpuidle_exynos4/parameters/enable_mask
@@ -408,23 +406,9 @@ on post-fs-data
     write /proc/sys/net/ipv6/conf/rmnet_usb2/accept_ra 2
     write /proc/sys/net/ipv6/conf/rmnet_usb3/accept_ra 2
 # SISO-ANDR_PERF :: END
-    chown radio system /sys/devices/system/cpu/cpufreq/pegasusq/cpucore_table
-    chown radio system /sys/devices/system/cpu/cpufreq/pegasusq/max_cpu_lock
-    chown radio system /sys/devices/system/cpu/cpufreq/pegasusq/min_cpu_lock
-    chown radio system /sys/devices/system/cpu/cpufreq/pegasusq/hotplug_lock
-    chmod 0660 /sys/devices/system/cpu/cpufreq/pegasusq/cpucore_table
-    chmod 0660 /sys/devices/system/cpu/cpufreq/pegasusq/max_cpu_lock
-    chmod 0660 /sys/devices/system/cpu/cpufreq/pegasusq/min_cpu_lock
-    chmod 0660 /sys/devices/system/cpu/cpufreq/pegasusq/hotplug_lock
-
-
-# umount service
-#service umount_service /system/bin/umount /preload
-#   disabled
-#   oneshot
 
 on property:persist.sys.storage_preload=1
-    mount ext4 /dev/block/mmcblk0p10 /preload nosuid nodev noatime wait ro
+#    mount ext4 /dev/block/mmcblk0p10 /preload nosuid nodev noatime wait ro
     setprop storage.preload.complete 1
 
 on property:persist.sys.storage_preload=0
@@ -602,11 +586,7 @@ service wlandutservice /system/bin/wlandutservice
 
 service macloader /system/bin/macloader
 	class main
-	disabled
 	oneshot
-
-on property:sys.mobicoredaemon.enable=true
-	start macloader
 
 on property:init.svc.macloader=stopped
     chown system root /data/.cid.info
@@ -669,14 +649,37 @@ service iprenew_bt-pan /system/bin/dhcpcd -n
     disabled
     oneshot
 
+on property:ro.dumpstate.dmesg=1
+    write /proc/sys/kernel/dmesg_restrict 0
+
 service ipruleset /system/bin/ipruleset
     class main
     group vpn net_admin inet net_raw
 	disabled
     oneshot
 
-on property:ro.dumpstate.dmesg=1
-    write /proc/sys/kernel/dmesg_restrict 0
+# Secure Storage startup
+service prepare-ssdaemon /system/bin/sh /system/bin/ss-presetup.sh
+    class core
+    user root
+    group root
+    oneshot
+
+service secure_storage /system/bin/secure_storage_daemon
+    class core
+    user system
+    group system
+    disabled
+
+# symlink to bugreport storage location
+symlink /data/data/com.android.shell/files/bugreports /data/bugreports
+
+on property:ro.securestorage.knox=true
+    mkdir /dev/.secure_storage
+    chmod 0711 /dev/.secure_storage
+    chown system system /dev/.secure_storage
+    restorecon -R /dev/.secure_storage
+    start secure_storage
 
 # service for TZPR provisioning version check app
 service scranton_RD /system/bin/scranton_RD
