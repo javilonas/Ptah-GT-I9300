@@ -8,7 +8,7 @@ on early-init
     mkdir /tombstones
 
 on init
-
+    chmod 0701 /mnt/media_rw
     # See storage config details at http://source.android.com/tech/storage/
     mkdir /mnt/media_rw/extSdCard 0700 media_rw media_rw
     mkdir /mnt/media_rw/UsbDriveA 0700 media_rw media_rw
@@ -20,10 +20,16 @@ on init
 
     # See storage config details at http://source.android.com/tech/storage/
     mkdir /mnt/shell/emulated 0700 shell shell
+    mkdir /storage 0550 system sdcard_r
     mkdir /mnt/shell/container 0700 system system
     mkdir /storage/emulated 0555 root root
+    mkdir /storage/sdcard1 0775 system system
+    mkdir /storage/usbdisk0 0775 system system
+    mkdir /mnt/media_rw/sdcard1 0775 system system
+    mkdir /mnt/media_rw/usbdisk0 0775 system system
 
     export EXTERNAL_STORAGE /storage/emulated/legacy
+    export SECONDARY_STORAGE /storage/sdcard1:/storage/usbdisk0
     export EMULATED_STORAGE_SOURCE /mnt/shell/emulated
     export EMULATED_STORAGE_TARGET /storage/emulated
 
@@ -33,12 +39,17 @@ on init
     symlink /storage/emulated/legacy /storage/sdcard0
     symlink /mnt/shell/emulated/0 /storage/emulated/legacy
     symlink /mnt/shell/container /storage/container
+    symlink /storage/sdcard1 /extSdCard
+    symlink /storage/sdcard1 /mnt/extSdCard
+    symlink /storage/usbdisk0 /usbdisk0
+    symlink /storage/usbdisk0 /mnt/usbdisk0
 
     export SECONDARY_STORAGE /storage/extSdCard
     mkdir /storage/extSdCard 0555 root root
 
-    # map "real" external storages paths also in same way. backwards compatibility.
+# map "real" external storages paths also in same way. backwards compatibility.
     symlink /storage/extSdCard /mnt/extSdCard
+    symlink /storage/extSdCard /extSdCard
     symlink /storage/UsbDriveA /mnt/UsbDriveA
     symlink /storage/UsbDriveB /mnt/UsbDriveB
     symlink /storage/UsbDriveC /mnt/UsbDriveC
@@ -69,7 +80,7 @@ on init
 
 on post-fs-data
     # we will remap this as /storage/sdcard with the sdcard fuse tool
-    mkdir /data/media 0770 media_rw media_rw
+    mkdir /data/media 0775 media_rw media_rw
     chown media_rw media_rw /data/media
 
     # make directory for DRM
@@ -98,11 +109,10 @@ on post-fs-data
     mkdir /efs/wifi 0775 radio system
     mkdir /efs/bluetooth 0775 radio system
     mkdir /efs/imei 0775 radio system
+    chmod 0660 /data/misc/wifi/wpa_supplicant.conf
     mkdir /system/etc/wifi 0775 wifi wifi
     mkdir /data/misc/wifi/sockets 0770 wifi wifi
     mkdir /data/misc/dhcp 0775 dhcp dhcp
-    chmod 0660 /data/misc/wifi/wpa_supplicant.conf
-
     chown dhcp dhcp /data/misc/dhcp
     chown system system /efs/wifi/.mac.info
     chmod 0664 /efs/wifi/.mac.info
@@ -147,13 +157,12 @@ on boot
     chmod 0664 /sys/module/cpuidle_exynos4/parameters/enable_mask
 
 # SISO-ANDR_PERF :: START Changing scheduler to noop during boot
-    write /sys/block/mmcblk0/queue/scheduler noop
+#    write /sys/block/mmcblk0/queue/scheduler noop
 # SISO-ANDR_PERF :: END
 
     setprop ro.build.product smdk4x12
     setprop ro.product.device smdk4x12
     # setprop ro.radio.noril yes
-    # setprop ro.securestorage.knox true
 
 # mobicore
     mkdir /data/app/mcRegistry 0775 system system
@@ -289,7 +298,8 @@ on boot
     chmod 0660 /dev/tspdrv
     chown system system /dev/tspdrv
 
-    write /proc/sys/vm/swappiness 130
+# write /proc/sys/vm/swappiness 130
+
 on fs
     mount_all /fstab.smdk4x12
     setprop ro.crypto.fuse_sdcard true
@@ -334,6 +344,21 @@ on fs
 
 # Permissions for Gscaler log level
     chmod 0666 /sys/module/gsc/parameters/gsc_dbg
+
+
+# create data/gps for GPS daemon
+    chown root system /dev/ttySAC1
+    chmod 0660 /dev/ttySAC1
+    chown root system /sys/class/sec/gps/GPS_PWR_EN/value
+    chmod 0664 /sys/class/sec/gps/GPS_PWR_EN/value
+    chown root system /sys/class/sec/gps/GPS_nRST/value
+    chmod 0664 /sys/class/sec/gps/GPS_nRST/value
+
+# make sure data_system dir and perms are properly set.
+    mkdir /data/system 0771 system system
+    chown system system /data/system
+    mkdir /data/system/gps 0771 system system
+    chown system system /data/system/gps
 
 # Permissions for backlight
     chown system system /sys/class/backlight/panel/brightness
@@ -384,36 +409,21 @@ on post-fs
 on post-fs-data
 
 # SISO-ANDR_PERF :: START Changing scheduler to cfq and reseting cpu min freq to -1 after boot complete
-on property:sys.boot_completed=1
-    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor pegasusq
-    write /sys/block/mmcblk0/queue/scheduler cfq
-    write /sys/power/cpufreq_min_limit -1
+#on property:sys.boot_completed=1
+#    write /sys/block/mmcblk0/queue/scheduler cfq
+#    write /sys/power/cpufreq_min_limit -1
     write /proc/sys/net/ipv6/conf/rmnet_usb0/accept_ra 2
     write /proc/sys/net/ipv6/conf/rmnet_usb1/accept_ra 2
     write /proc/sys/net/ipv6/conf/rmnet_usb2/accept_ra 2
     write /proc/sys/net/ipv6/conf/rmnet_usb3/accept_ra 2
 # SISO-ANDR_PERF :: END
-    chown radio system /sys/devices/system/cpu/cpufreq/pegasusq/cpucore_table
-    chown radio system /sys/devices/system/cpu/cpufreq/pegasusq/max_cpu_lock
-    chown radio system /sys/devices/system/cpu/cpufreq/pegasusq/min_cpu_lock
-    chown radio system /sys/devices/system/cpu/cpufreq/pegasusq/hotplug_lock
-    chmod 0660 /sys/devices/system/cpu/cpufreq/pegasusq/cpucore_table
-    chmod 0660 /sys/devices/system/cpu/cpufreq/pegasusq/max_cpu_lock
-    chmod 0660 /sys/devices/system/cpu/cpufreq/pegasusq/min_cpu_lock
-    chmod 0660 /sys/devices/system/cpu/cpufreq/pegasusq/hotplug_lock
-
-
-# umount service
-#service umount_service /system/bin/umount /preload
-#   disabled
-#   oneshot
 
 on property:persist.sys.storage_preload=1
-    mount ext4 /dev/block/mmcblk0p10 /preload nosuid nodev noatime wait ro
+#    mount ext4 /dev/block/mmcblk0p10 /preload nosuid nodev noatime wait ro
     setprop storage.preload.complete 1
 
 on property:persist.sys.storage_preload=0
-    exec /system/bin/umount /preload    
+    exec /system/bin/umount /preload   
 
 ## Daemon processes to be run by init.
 ##
@@ -587,11 +597,7 @@ service wlandutservice /system/bin/wlandutservice
 
 service macloader /system/bin/macloader
 	class main
-	disabled
 	oneshot
-
-on property:sys.mobicoredaemon.enable=true
-	start macloader
 
 on property:init.svc.macloader=stopped
     chown system root /data/.cid.info
@@ -599,15 +605,6 @@ on property:init.svc.macloader=stopped
     chown system root /data/.rev
     chmod 0660 /data/.rev
 # end of wifi
-
-#QCRIL
-service netmgrd /system/bin/netmgrd
-    class late_start
-
-service qc_kickstart /system/bin/qcks s
-    class core
-    user root
-    group radio cache inet misc audio sdcard_rw log
 
 # RILD
 service ril-daemon /system/bin/rild
@@ -623,28 +620,6 @@ service cpboot-daemon /sbin/cbd -d
     user root
     group radio cache inet misc audio sdcard_rw log sdcard_r
     seclabel u:r:cbd:s0
-
-#sensorhubservice start
-service sensorhubservice /system/bin/sensorhubservice
-    class main
-    user system
-    group input
-
-#service secril-daemon /system/bin/sec-ril
-    class main
-    user root
-    group radio cache inet misc audio sdcard_rw log sdcard_r
-
-#For EncryptionMode - remove disabled, Modify class main
-service qmiproxy /system/bin/qmiproxy
-    class main
-    user radio
-    group radio
-
-service qmuxd /system/bin/qmuxd
-    class main
-    user root
-    group radio log audio bluetooth log
 
 on property:ro.use_data_netmgrd=false
 #netmgr not supported on specific target
@@ -685,17 +660,8 @@ service iprenew_bt-pan /system/bin/dhcpcd -n
     disabled
     oneshot
 
-# SA, System SW, SAMSUNG
-#service bugreport /system/bin/bugmailer.sh -v
-#    class main
-#    disabled
-#    oneshot
-#    keycodes 114 115 116
-
-#service sdumpstate /system/bin/dumpstate -P
-#    class main
-#    disabled
-#    oneshot
+on property:ro.dumpstate.dmesg=1
+    write /proc/sys/kernel/dmesg_restrict 0
 
 service ipruleset /system/bin/ipruleset
     class main
@@ -703,8 +669,28 @@ service ipruleset /system/bin/ipruleset
 	disabled
     oneshot
 
-on property:ro.dumpstate.dmesg=1
-    write /proc/sys/kernel/dmesg_restrict 0
+# Secure Storage startup
+service prepare-ssdaemon /system/bin/sh /system/bin/ss-presetup.sh
+    class core
+    user root
+    group root
+    oneshot
+
+service secure_storage /system/bin/secure_storage_daemon
+    class core
+    user system
+    group system
+    disabled
+
+# symlink to bugreport storage location
+symlink /data/data/com.android.shell/files/bugreports /data/bugreports
+
+on property:ro.securestorage.knox=true
+    mkdir /dev/.secure_storage
+    chmod 0711 /dev/.secure_storage
+    chown system system /dev/.secure_storage
+    restorecon -R /dev/.secure_storage
+    start secure_storage
 
 # service for TZPR provisioning version check app
 service scranton_RD /system/bin/scranton_RD
