@@ -3,7 +3,7 @@ ui_print(" ");
 ui_print("   ##########################################   ");
 ui_print("   #          KERNEL MADE IN SPAIN          #   ");
 ui_print("   #   http://www.esp-desarrolladores.com   #   ");
-ui_print("   #               Ptah v.1.4               #   ");
+ui_print("   #               Ptah v.1.5               #   ");
 ui_print("   ##########################################   ");
 ui_print(" ");
 ui_print(" ");
@@ -51,7 +51,7 @@ ui_print(" ");
 ui_print(" - Flasheando kernel ");
 ui_print(" ");
 ui_print(" ");
-ui_print(" - Version: [Ptah-1.4] ");
+ui_print(" - Version: [Ptah-1.5] ");
 ui_print(" ");
 ui_print(" ");
 assert(package_extract_file("boot.img", "/tmp/boot.img"),
