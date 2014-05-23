@@ -3,7 +3,7 @@
 # zswap
 #
 
-zswap_size=512
+zswap_size=640
 
 	if [ $zswap_size -gt 0 ]; then
 		echo `expr $zswap_size \* 1024 \* 1024` > /sys/devices/virtual/block/vnswap0/disksize
