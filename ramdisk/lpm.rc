@@ -2,6 +2,7 @@ on early-init
     start ueventd
 
 on init
+
     export PATH /sbin:/vendor/bin:/system/sbin:/system/bin:/system/xbin
     export LD_LIBRARY_PATH /vendor/lib:/system/lib
     export ANDROID_ROOT /system
@@ -22,15 +23,12 @@ on init
     mkdir /mnt 0775 root root
     #mount /tmp /tmp tmpfs   
 
-    write /proc/sys/kernel/hung_task_timeout_secs 0
-
 on early-fs
 	insmod /lib/modules/vibrator.ko
-
+ 
     mount ext4 /dev/block/mmcblk0p9 /system ro wait noatime
-    mount ext4 /dev/block/mmcblk0p12 /data wait nosuid nodev noatime discard,noauto_da_alloc,journal_async_commit
-
 	mkdir /data/log 0777
+
 	chmod 0666 /dev/log/radio
 	chmod 0666 /dev/log/main
 	chmod 0666 /dev/log/event    
@@ -52,20 +50,21 @@ on boot
 
 service debuggerd /system/bin/debuggerd
 
-service ueventd /sbin/ueventd
-    critical
+	service ueventd /sbin/ueventd
+    	critical
 
+#service console /bin/sh
 service console /system/bin/sh
-    console
+	console
 
 service playlpm /system/bin/playlpm
-    user root
+    	user root
 
 service immvibed /system/bin/immvibed 
-    oneshot
+	oneshot
 
 service lpmkey /system/bin/lpmkey
-    user root
+    	user root
 
 # adbd is controlled by the persist.service.adb.enable system property
 service adbd /sbin/adbd

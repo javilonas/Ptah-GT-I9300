@@ -60,10 +60,6 @@ on init
     mkdir /mnt/media_rw 0700 media_rw media_rw
     mkdir /storage 0751 root sdcard_r
 
-
-    # Create mountpoint so Dalvik can mark as slave in zygotes.
-    mount tmpfs tmpfs /storage mode=0050,uid=0,gid=1028
-
     # Directory for putting things only root should see.
     mkdir /mnt/secure 0700 root root
     # Create private mountpoint so we can MS_MOVE from staging
@@ -134,7 +130,7 @@ on init
 #   net_bw_stats grants access to other apps' detailed tagged-socket stats.
     chown root net_bw_acct /proc/net/xt_qtaguid/ctrl
     chown root net_bw_stats /proc/net/xt_qtaguid/stats
-
+	
 # Allow everybody to read the xt_qtaguid resource tracking misc dev.
 # This is needed by any process that uses socket tagging.
     chmod 0644 /dev/xt_qtaguid
@@ -248,16 +244,6 @@ on post-fs-data
     mkdir /data/ssh/empty 0700 root root
     mkdir /data/radio 0770 radio radio
 
-    # SA, System SW, SAMSUNG create log directory
-    mkdir /data/log 0775 system log
-    chown system log /data/log
-    restorecon /data/log
-
-    mkdir /data/anr 0755 system system
-    restorecon /data/anr
-    chmod 0775 /data/log
-    chmod 0775 /data/anr
-
     # create dalvik-cache and double-check the perms, so as to enforce our permissions
     mkdir /data/dalvik-cache 0771 system system
     chown system system /data/dalvik-cache
@@ -319,7 +305,7 @@ on post-fs-data
     mkdir /system/lib/drm 0775
     chown root root /system/lib/drm
     chmod 0775 /system/lib/drm
-
+	
     # DivX DRM
     mkdir /efs/.files 0775
     mkdir /efs/.files/.dx1 0775
@@ -331,8 +317,9 @@ on post-fs-data
     chmod 0775 /efs/.files/.dx1
     chmod 0775 /efs/.files/.dm33
     chmod 0775 /efs/.files/.mp301
+
     restorecon -R /efs
-#]
+# ]
 
     # If there is no fs-post-data action in the init.<device>.rc file, you
     # must uncomment this line, otherwise encrypted filesystems
@@ -359,14 +346,6 @@ on post-fs-data
 
 	#Restorecon /tombstones
     restorecon -R /tombstones
-
-# terminal mode
-    chmod 0660 /sys/class/android_usb/android0/terminal_version
-    chown system system /sys/class/android_usb/android0/terminal_version
-
-# sua version info
-    chmod 0660 /sys/class/android_usb/android0/f_mass_storage/sua_version_info
-    chown system system /sys/class/android_usb/android0/f_mass_storage/sua_version_info
 	
     # Set permission for Widevine DRM temporarily
     chmod 0644 /factory/wv.keys
@@ -432,36 +411,21 @@ on boot
     chmod 0660 /sys/power/wake_lock
     chmod 0660 /sys/power/wake_unlock
 
-    chown radio system /sys/power/cpufreq_table
-    chown radio system /sys/power/cpufreq_max_limit
-    chown radio system /sys/power/cpufreq_min_limit
-    chown radio system /sys/power/gpu_lock
-    chown radio system /sys/devices/system/cpu/cpufreq/pegasusq/max_cpu_lock
-    chown radio system /sys/devices/system/cpu/cpufreq/pegasusq/min_cpu_lock
-    chown radio system /sys/devices/system/cpu/cpufreq/pegasusq/cpucore_table
-    chown radio system /sys/devices/system/cpu/cpufreq/pegasusq/hotplug_lock
-    chown radio system /sys/devices/system/cpu/busfreq/curr_freq
-    chown radio system /sys/devices/system/cpu/busfreq/dmc_max_threshold
-    chown radio system /sys/devices/system/cpu/busfreq/min_freq
-    chown radio system /sys/devices/system/cpu/busfreq/freq_table
-    chown radio system /sys/module/mali/parameters/mali_dvfs_control
-    chown system radio /sys/bus/platform/devices/s5p-tmu/lot_id
-    chmod 0660 /sys/power/cpufreq_table
-    chmod 0660 /sys/power/cpufreq_max_limit
-    chmod 0660 /sys/power/cpufreq_min_limit
-    chmod 0660 /sys/power/gpu_lock
-    chmod 0660 /sys/class/power_supply/battery/siop_activated
-    chmod 0660 /sys/class/power_supply/battery/siop_level
-    chmod 0660 /sys/devices/system/cpu/cpufreq/pegasusq/max_cpu_lock
-    chmod 0660 /sys/devices/system/cpu/cpufreq/pegasusq/min_cpu_lock
-    chmod 0660 /sys/devices/system/cpu/cpufreq/pegasusq/cpucore_table
-    chmod 0660 /sys/devices/system/cpu/cpufreq/pegasusq/hotplug_lock
-    chmod 0660 /sys/devices/system/cpu/busfreq/curr_freq
-    chmod 0660 /sys/devices/system/cpu/busfreq/dmc_max_threshold
-    chmod 0660 /sys/devices/system/cpu/busfreq/min_freq
-    chmod 0660 /sys/devices/system/cpu/busfreq/freq_table
-    chmod 0660 /sys/module/mali/parameters/mali_dvfs_control
-    chmod 0664 /sys/bus/platform/devices/s5p-tmu/lot_id
+    chown system system /sys/devices/system/cpu/cpufreq/interactive/timer_rate
+    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/timer_rate
+    chown system system /sys/devices/system/cpu/cpufreq/interactive/min_sample_time
+    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/min_sample_time
+    chown system system /sys/devices/system/cpu/cpufreq/interactive/hispeed_freq
+    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/hispeed_freq
+    chown system system /sys/devices/system/cpu/cpufreq/interactive/go_hispeed_load
+    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/go_hispeed_load
+    chown system system /sys/devices/system/cpu/cpufreq/interactive/above_hispeed_delay
+    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/above_hispeed_delay
+    chown system system /sys/devices/system/cpu/cpufreq/interactive/boost
+    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/boost
+    chown system system /sys/devices/system/cpu/cpufreq/interactive/boostpulse
+    chown system system /sys/devices/system/cpu/cpufreq/interactive/input_boost
+    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/input_boost
 
     # Assume SMP uses shared cpufreq policy for all CPUs
     chown system system /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
@@ -500,22 +464,6 @@ on boot
 
 #permission for HDMI audio mute
     chown media audio /sys/class/hdmi_audio/hdmi_audio/hdmi_audio_set_ext
-    
-# Permissions for touch
-    chown system radio /sys/class/sec/tsp/cmd
-
-# Permissions for EPEN
-    chown system radio /sys/class/sec/sec_epen/epen_firm_update
-    chown system radio /sys/class/sec/sec_epen/epen_rotation
-    chown system radio /sys/class/sec/sec_epen/epen_hand
-    chown system radio /sys/class/sec/sec_epen/epen_reset
-    chown system radio /sys/class/sec/sec_epen/epen_reset_result
-    chown system radio /sys/class/sec/sec_epen/epen_checksum
-    chown system radio /sys/class/sec/sec_epen/epen_checksum_result
-    chown system radio /sys/class/sec/sec_epen/epen_saving_mode
-    chown system radio /sys/class/sec/sec_epen/boost_level
-# Firmware update
-    write /sys/class/sec/sec_epen/epen_firm_update R
 
 #permission for touchkey	
     chown system radio /sys/class/sec/sec_touchkey/enable_disable
@@ -531,6 +479,21 @@ on boot
     chown system radio /sys/class/sec/sec_touchkey/touch_sensitivity
     chown system radio /sys/class/sec/sec_touchkey/touchkey_threshold
     chown system system /sys/devices/virtual/sec/sec_touchkey/brightness
+    
+# Permissions for touch
+    chown system radio /sys/class/sec/tsp/cmd
+
+# Permissions for EPEN
+    chown system radio /sys/class/sec/sec_epen/epen_firm_update
+    chown system radio /sys/class/sec/sec_epen/epen_rotation
+    chown system radio /sys/class/sec/sec_epen/epen_hand
+    chown system radio /sys/class/sec/sec_epen/epen_reset
+    chown system radio /sys/class/sec/sec_epen/epen_reset_result
+    chown system radio /sys/class/sec/sec_epen/epen_checksum
+    chown system radio /sys/class/sec/sec_epen/epen_checksum_result
+    chown system radio /sys/class/sec/sec_epen/epen_saving_mode
+    chown system radio /sys/class/sec/sec_epen/boost_level
+    write /sys/class/sec/sec_epen/epen_firm_update R
 
 # Permissions for gpio_keys
     chown radio system /sys/class/sec/sec_key/wakeup_keys
@@ -553,13 +516,7 @@ on boot
     chown radio system /sys/devices/platform/samsung-pd.5/s3c-fimc.2/range_mode
     chmod 0660 /sys/devices/platform/samsung-pd.5/s3c-fimc.2/range_mode
 
-# Audio (Earjack)
-    chown system radio /sys/class/audio/earjack/select_jack
-    chown system radio /sys/class/audio/earjack/key_state
-    chown system radio /sys/class/audio/earjack/state
-    chown media system /sys/class/audio/earjack/reselect_jack
-
-# Battery node
+# Permissions for Battery nodes
     chown system radio /sys/class/power_supply/battery/batt_charging_source
     chown system radio /sys/class/power_supply/battery/batt_error_test
     chown system radio /sys/class/power_supply/battery/batt_lp_charging
@@ -584,6 +541,12 @@ on boot
     chown system radio /sys/class/power_supply/battery/update
     chown system radio /sys/class/power_supply/battery/wc_status
     chown system radio /sys/class/power_supply/battery/wpc_pin_state
+
+# Audio (Earjack)
+    chown system radio /sys/class/audio/earjack/select_jack
+    chown system radio /sys/class/audio/earjack/key_state
+    chown system radio /sys/class/audio/earjack/state
+    chown media system /sys/class/audio/earjack/reselect_jack
 
 # CTIA event
    chown sdcard_rw sdcard_rw /sys/class/power_supply/battery/call
@@ -676,12 +639,10 @@ on boot
 
 # HDCP 2.x
     mkdir /data/system/hdcp2 0775 system system
-
 # h2k permission
     chown radio system /efs/redata.bin
     chmod 0644 /efs/h2k.dat
     mkdir /data/misc/radio/hatp 0775 radio system
-
     class_start core
     class_start main
 
@@ -712,7 +673,6 @@ on property:vold.decrypt=trigger_shutdown_framework
     class_reset main
 
 on property:selinux.reload_policy=1
-
     chown system system /sys/fs/selinux/enforce
     chown -R system system /sys/fs/selinux/booleans
     chown system system /sys/fs/selinux/commit_pending_bools
@@ -751,7 +711,6 @@ service console /system/bin/sh
     disabled
     user shell
     group log
-
 ## WTL_EDM_START
 ## EDM AuditLog
 service edmaudit /system/bin/edmaudit
@@ -765,6 +724,10 @@ service auditd /system/bin/auditd -k
     seclabel u:r:auditd:s0
     disabled
     oneshot
+
+#service netlabels /system/bin/selinux-network.sh
+    #class core
+    #oneshot
 
 on property:ro.debuggable=1
     start console
@@ -844,6 +807,7 @@ service mobex-daemon /system/bin/npsmobex
     user system
     group system radio inet sdcard_r sdcard_rw media_rw shell
 
+
 service surfaceflinger /system/bin/surfaceflinger
     class main
     user system
@@ -857,7 +821,6 @@ service zygote /system/bin/app_process -Xzygote /system/bin --zygote --start-sys
     onrestart write /sys/power/state on
     onrestart restart media
     onrestart restart netd
-    onrestart restart sensorhubservice
 
 service drm /system/bin/drmserver
     class main
@@ -872,7 +835,7 @@ service drm /system/bin/drmserver
 service media /system/bin/mediaserver
     class main
     user media
-    group system audio camera inet net_bt net_bt_admin net_bw_acct drmrpc mediadrm sdcard_r sdcard_rw media_rw shell graphics lgt_gid
+    group system audio camera inet net_bt net_bt_admin net_bw_acct drmrpc sdcard_r sdcard_rw  media_rw shell graphics mediadrm
     ioprio rt 4
 
 service powersnd /system/bin/samsungpowersoundplay
