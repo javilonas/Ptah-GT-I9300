@@ -19,6 +19,7 @@
 # Empty directories
 /lost\+found		u:object_r:rootfs:s0
 /proc			u:object_r:rootfs:s0
+/sys			u:object_r:rootfs:s0
 
 # SELinux policy files
 /file_contexts		u:object_r:rootfs:s0
@@ -215,6 +216,10 @@
 # asec containers
 /mnt/asec(/.*)?         u:object_r:asec_apk_file:s0
 /data/app-asec(/.*)?    u:object_r:asec_image_file:s0
+#############################
+## faux kernel hacks
+/sys/devices/system/cpu.*/cpufreq(/.*)? --  u:object_r:sysfs_writable:s0
+
 #line 1 "vendor/samsung/common/sepolicy/file_contexts"
 ############################# 
 # Carrier file
@@ -336,6 +341,16 @@
 
 /system/lib(/.*)?	u:object_r:system_library_file:s0
 
+# Camera
+/data/ISP_CV                            u:object_r:camera_data_file:s0
+/dev/exynos-mem     
+
+# Bluetooth
+/dev/ttySAC0                            u:object_r:hci_attach_dev:s0
+/efs/bluetooth/(/.*)?                   u:object_r:bluetooth_efs_file:s0
+
+# GPS
+/dev/ttySAC1                            u:object_r:gps_device:s0
 
 ############################# 
 # EFS file
@@ -345,6 +360,9 @@
 /efs/FactoryApp(/.*)?	u:object_r:app_efs_file:s0
 /efs/wifi(/.*)?	u:object_r:wifi_efs_file:s0
 
+# Wifi
+/dev/rfkill                             u:object_r:rfkill_device:s0
+/efs/wifi/.mac.info                     u:object_r:wifi_data_file:s0
 
 ############################# 
 # DATA file

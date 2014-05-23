@@ -411,21 +411,36 @@ on boot
     chmod 0660 /sys/power/wake_lock
     chmod 0660 /sys/power/wake_unlock
 
-    chown system system /sys/devices/system/cpu/cpufreq/interactive/timer_rate
-    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/timer_rate
-    chown system system /sys/devices/system/cpu/cpufreq/interactive/min_sample_time
-    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/min_sample_time
-    chown system system /sys/devices/system/cpu/cpufreq/interactive/hispeed_freq
-    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/hispeed_freq
-    chown system system /sys/devices/system/cpu/cpufreq/interactive/go_hispeed_load
-    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/go_hispeed_load
-    chown system system /sys/devices/system/cpu/cpufreq/interactive/above_hispeed_delay
-    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/above_hispeed_delay
-    chown system system /sys/devices/system/cpu/cpufreq/interactive/boost
-    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/boost
-    chown system system /sys/devices/system/cpu/cpufreq/interactive/boostpulse
-    chown system system /sys/devices/system/cpu/cpufreq/interactive/input_boost
-    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/input_boost
+    chown radio system /sys/power/cpufreq_table
+    chown radio system /sys/power/cpufreq_max_limit
+    chown radio system /sys/power/cpufreq_min_limit
+    chown radio system /sys/power/gpu_lock
+    chown radio system /sys/devices/system/cpu/cpufreq/pegasusq/max_cpu_lock
+    chown radio system /sys/devices/system/cpu/cpufreq/pegasusq/min_cpu_lock
+    chown radio system /sys/devices/system/cpu/cpufreq/pegasusq/cpucore_table
+    chown radio system /sys/devices/system/cpu/cpufreq/pegasusq/hotplug_lock
+    chown radio system /sys/devices/system/cpu/busfreq/curr_freq
+    chown radio system /sys/devices/system/cpu/busfreq/dmc_max_threshold
+    chown radio system /sys/devices/system/cpu/busfreq/min_freq
+    chown radio system /sys/devices/system/cpu/busfreq/freq_table
+    chown radio system /sys/module/mali/parameters/mali_dvfs_control
+    chown system radio /sys/bus/platform/devices/s5p-tmu/lot_id
+    chmod 0660 /sys/power/cpufreq_table
+    chmod 0660 /sys/power/cpufreq_max_limit
+    chmod 0660 /sys/power/cpufreq_min_limit
+    chmod 0660 /sys/power/gpu_lock
+    chmod 0660 /sys/class/power_supply/battery/siop_activated
+    chmod 0660 /sys/class/power_supply/battery/siop_level
+    chmod 0660 /sys/devices/system/cpu/cpufreq/pegasusq/max_cpu_lock
+    chmod 0660 /sys/devices/system/cpu/cpufreq/pegasusq/min_cpu_lock
+    chmod 0660 /sys/devices/system/cpu/cpufreq/pegasusq/cpucore_table
+    chmod 0660 /sys/devices/system/cpu/cpufreq/pegasusq/hotplug_lock
+    chmod 0660 /sys/devices/system/cpu/busfreq/curr_freq
+    chmod 0660 /sys/devices/system/cpu/busfreq/dmc_max_threshold
+    chmod 0660 /sys/devices/system/cpu/busfreq/min_freq
+    chmod 0660 /sys/devices/system/cpu/busfreq/freq_table
+    chmod 0660 /sys/module/mali/parameters/mali_dvfs_control
+    chmod 0664 /sys/bus/platform/devices/s5p-tmu/lot_id
 
     # Assume SMP uses shared cpufreq policy for all CPUs
     chown system system /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
@@ -835,7 +850,7 @@ service drm /system/bin/drmserver
 service media /system/bin/mediaserver
     class main
     user media
-    group system audio camera inet net_bt net_bt_admin net_bw_acct drmrpc sdcard_r sdcard_rw  media_rw shell graphics mediadrm
+    group system audio camera inet net_bt net_bt_admin net_bw_acct drmrpc mediadrm sdcard_r sdcard_rw media_rw shell graphics lgt_gid
     ioprio rt 4
 
 service powersnd /system/bin/samsungpowersoundplay
