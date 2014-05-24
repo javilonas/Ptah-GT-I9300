@@ -148,6 +148,4 @@ obj-$(CONFIG_IOMMU_SUPPORT)	+= iommu/
 
 obj-$(CONFIG_FELICA) += felica/
 
-obj-$(CONFIG_AUTHENTEC_VPNCLIENT_INTERCEPTOR) += interceptor/
-
 obj-$(CONFIG_ICE4_FPGA)		+= ice4_fpga/

@@ -11,11 +11,12 @@ echo "0" > /proc/sys/vm/drop_caches
 
 #disable cpuidle log
 echo "0" > /sys/module/cpuidle_exynos4/parameters/log_en
- 
-# Tweaks internos
-echo "2" > /sys/devices/system/cpu/sched_mc_power_savings
-echo "0" > /proc/sys/kernel/randomize_va_space
-echo "3" > /sys/module/cpuidle_exynos4/parameters/enable_mask
+
+# Miscellaneous tweaks
+echo "0" > /proc/sys/vm/block_dump
+echo "5" > /proc/sys/vm/laptop_mode
+echo "0" > /proc/sys/vm/panic_on_oom 
+echo "8" > /proc/sys/vm/page-cluster
 
 # Turn off debugging for certain modules
 echo "0" > /sys/module/wakelock/parameters/debug_mask
