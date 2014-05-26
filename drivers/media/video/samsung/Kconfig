@@ -225,4 +225,3 @@ config VIDEO_SAMSUNG_MEMSIZE_TVOUT
 endif
 
 source "drivers/media/video/samsung/media_monitor/Kconfig"
-

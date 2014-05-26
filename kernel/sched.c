@@ -577,8 +577,6 @@ struct rq {
 
 static DEFINE_PER_CPU_SHARED_ALIGNED(struct rq, runqueues);
 
-#include <linux/cpufreq_slp.h>
-
 ATOMIC_NOTIFIER_HEAD(migration_notifier_head);
 
 static void check_preempt_curr(struct rq *rq, struct task_struct *p, int flags);
@@ -4356,8 +4354,6 @@ need_resched:
 		rq->nr_switches++;
 		rq->curr = next;
 		++*switch_count;
-
-		slp_store_task_history(cpu, prev);
 
 		context_switch(rq, prev, next); /* unlocks the rq */
 		/*
