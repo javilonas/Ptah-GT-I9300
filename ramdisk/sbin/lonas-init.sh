@@ -45,6 +45,9 @@ fi
 # Iniciar Bootanimation personalizado
 /res/ext/bootanimation.sh
 
+# Iniciar fix MAC
+/res/ext/fixwifi.sh
+
 # Iniciar SQlite
 /res/ext/sqlite.sh
 
