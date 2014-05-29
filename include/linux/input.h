@@ -459,7 +459,7 @@ struct input_keymap_entry {
 #define KEY_DUMMY_HOME		252
 #define KEY_DUMMY_BACK		253
 
-#define KEY_RECENT			254
+#define KEY_RECENT		254
 
 /* kona dummy touchkey */
 #define KEY_DUMMY_1     251

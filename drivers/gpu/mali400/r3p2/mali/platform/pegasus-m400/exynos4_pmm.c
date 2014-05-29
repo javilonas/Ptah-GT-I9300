@@ -546,6 +546,7 @@ void mali_clk_set_rate(unsigned int clk, unsigned int mhz)
 	{
 		/* in Pega-prime, vpll_src_clock means ext_xtal_clock!! */
 		clk_set_parent(sclk_vpll_clock, vpll_src_clock);
+
 		clk_set_rate(fout_vpll_clock, (unsigned int)clk * GPU_MHZ);
 		clk_set_parent(vpll_src_clock, ext_xtal_clock);
 		clk_set_parent(sclk_vpll_clock, fout_vpll_clock);
