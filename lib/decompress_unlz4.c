@@ -72,7 +72,7 @@ STATIC inline int INIT unlz4(u8 *input, int in_len,
 		error("NULL input pointer and missing fill function");
 		goto exit_1;
 	} else {
-		inp = large_malloc(lz4_compressbound(uncomp_chunksize));
+		inp = large_malloc(LZ4_COMPRESSBOUND(uncomp_chunksize));
 		if (!inp) {
 			error("Could not allocate input buffer");
 			goto exit_1;
@@ -118,7 +118,7 @@ STATIC inline int INIT unlz4(u8 *input, int in_len,
 			*posp += 4;
 
 		if (fill) {
-			if (chunksize > lz4_compressbound(uncomp_chunksize)) {
+			if (chunksize > LZ4_COMPRESSBOUND(uncomp_chunksize)) {
 				error("chunk length is longer than allocated");
 				goto exit_2;
 			}
