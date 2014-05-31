@@ -1,5 +1,5 @@
 CONFIG_BOOTED=true
-swappiness=90
+swappiness=30
 scaling_governor=pegasusq
 internal_iosched=row
 sd_iosched=row

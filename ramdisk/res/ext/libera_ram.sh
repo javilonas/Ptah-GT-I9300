@@ -10,7 +10,9 @@ while [ 1 ];
 do
         if [ $FREE -lt 20360 ]; then
                 sync
-                echo "1" > /proc/sys/vm/drop_caches
+                echo "3" > /proc/sys/vm/drop_caches
+                sleep 1
+                echo "0" > /proc/sys/vm/drop_caches
         fi
 sleep 10800
 done

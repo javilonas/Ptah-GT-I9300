@@ -9,8 +9,17 @@ echo "3" > /proc/sys/vm/drop_caches
 sleep 1
 echo "0" > /proc/sys/vm/drop_caches
 
+# enable idle+LPA
+echo 2 > /sys/module/cpuidle_exynos4/parameters/enable_mask
+
+# setting sched_mc_power_savings off default
+echo 0 >  /sys/devices/system/cpu/sched_mc_power_savings
+
 #disable cpuidle log
 echo "0" > /sys/module/cpuidle_exynos4/parameters/log_en
+
+#Mali 400MP GPU threshold
+echo "40% 32% 60% 55% 60% 55% 60% 55%" > /sys/class/misc/gpu_control/gpu_clock_control
 
 # Miscellaneous tweaks
 echo "0" > /proc/sys/vm/block_dump
@@ -41,4 +50,7 @@ echo NEXT_BUDDY > /sys/kernel/debug/sched_features
 echo ARCH_POWER > /sys/kernel/debug/sched_features
 echo SYNC_WAKEUPS > /sys/kernel/debug/sched_features
 echo HRTICK > /sys/kernel/debug/sched_features
+
+# LMK minfree
+echo "12288,15360,18432,21504,24576,30720" > /sys/module/lowmemorykiller/parameters/minfree
 
