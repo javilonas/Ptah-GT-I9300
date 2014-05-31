@@ -10,10 +10,10 @@ sleep 1
 echo "0" > /proc/sys/vm/drop_caches
 
 # enable idle+LPA
-echo 2 > /sys/module/cpuidle_exynos4/parameters/enable_mask
+echo "2" > /sys/module/cpuidle_exynos4/parameters/enable_mask
 
 # setting sched_mc_power_savings off default
-echo 0 >  /sys/devices/system/cpu/sched_mc_power_savings
+echo "0" > /sys/devices/system/cpu/sched_mc_power_savings
 
 #disable cpuidle log
 echo "0" > /sys/module/cpuidle_exynos4/parameters/log_en
