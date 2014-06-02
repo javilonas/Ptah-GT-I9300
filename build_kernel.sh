@@ -37,8 +37,8 @@ if [ "${1}" != "" ];then
   export KERNELDIR=`readlink -f ${1}`
 fi
 
-TOOLCHAIN="/home/lonas/Kernel_Lonas/toolchains/android-ndk-r9d/toolchains/arm-linux-androideabi-4.8/prebuilt/linux-x86/bin/arm-linux-androideabi-"
-TOOLCHAIN_PATCH="/home/lonas/Kernel_Lonas/toolchains/android-ndk-r9d/toolchains/arm-linux-androideabi-4.8/prebuilt/linux-x86/bin"
+TOOLCHAIN="/home/lonas/Kernel_Lonas/toolchains/arm-cortex_a9-linux-gnueabihf-linaro_4.9.1-2014.05/bin/arm-cortex_a9-linux-gnueabihf-"
+TOOLCHAIN_PATCH="/home/lonas/Kernel_Lonas/toolchains/arm-cortex_a9-linux-gnueabihf-linaro_4.9.1-2014.05/bin"
 ROOTFS_PATH="/home/lonas/Kernel_Lonas/Ptah-GT-I9300/ramdisk"
 RAMFS_TMP="/home/lonas/Kernel_Lonas/tmp/ramfs-source-sgs3"
 export KERNEL_VERSION="Ptah-2.2"
@@ -93,7 +93,7 @@ mkdir -p $ROOTFS_PATH/lib/modules
 mkdir -p $ROOTFS_PATH/system/lib
 ln -s $ROOTFS_PATH/lib/modules/ $ROOTFS_PATH/system/lib
 find . -name '*.ko' -exec cp -av {} $ROOTFS_PATH/lib/modules/ \;
-$TOOLCHAIN_PATCH/arm-linux-androideabi-strip --strip-unneeded $ROOTFS_PATH/lib/modules/*.ko
+$TOOLCHAIN_PATCH/arm-cortex_a9-linux-gnueabihf-strip --strip-unneeded $ROOTFS_PATH/lib/modules/*.ko
 
 echo "#################### Update Ramdisk ####################"
 rm -f $KERNELDIR/releasetools/tar/$KERNEL_VERSION-$REVISION$KBUILD_BUILD_VERSION-$VERSION_KL.tar

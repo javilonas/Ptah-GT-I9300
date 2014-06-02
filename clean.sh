@@ -1,6 +1,6 @@
 #!/bin/bash
 
-TOOLCHAIN="/home/lonas/Kernel_Lonas/toolchains/android-ndk-r9d/toolchains/arm-linux-androideabi-4.8/prebuilt/linux-x86/bin/arm-linux-androideabi-"
+TOOLCHAIN="/home/lonas/Kernel_Lonas/toolchains/arm-cortex_a9-linux-gnueabihf-linaro_4.9.1-2014.05/bin/arm-cortex_a9-linux-gnueabihf-"
 DIR="/home/lonas/Kernel_Lonas/Ptah-GT-I9300"
 
 echo "#################### Eliminando Restos ####################"
