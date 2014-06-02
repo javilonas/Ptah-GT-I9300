@@ -41,7 +41,7 @@ TOOLCHAIN="/home/lonas/Kernel_Lonas/toolchains/android-ndk-r9d/toolchains/arm-li
 TOOLCHAIN_PATCH="/home/lonas/Kernel_Lonas/toolchains/android-ndk-r9d/toolchains/arm-linux-androideabi-4.8/prebuilt/linux-x86/bin"
 ROOTFS_PATH="/home/lonas/Kernel_Lonas/Ptah-GT-I9300/ramdisk"
 RAMFS_TMP="/home/lonas/Kernel_Lonas/tmp/ramfs-source-sgs3"
-export KERNEL_VERSION="Ptah-2.1"
+export KERNEL_VERSION="Ptah-2.2"
 VERSION_KL="SAMMY"
 REVISION="RTM"
 

@@ -8,6 +8,7 @@ import /init.environ.rc
 import /init.usb.rc
 import /init.${ro.hardware}.rc
 import /init.trace.rc
+import /init.container.rc
 
 on early-init
     # Set init and its forked children's oom_adj.
@@ -52,7 +53,7 @@ on init
 
     mkdir /system
     mkdir /data 0771 system system
-    mkdir /cache 0771 system cache
+    mkdir /cache 0770 system cache
     mkdir /config 0500 root root
 
     # See storage config details at http://source.android.com/tech/storage/
@@ -60,6 +61,9 @@ on init
     mkdir /mnt/media_rw 0700 media_rw media_rw
     mkdir /storage 0751 root sdcard_r
 
+    # Create mountpoint so Dalvik can mark as slave in zygotes.
+    mount tmpfs tmpfs /storage mode=0050,uid=0,gid=1028
+        
     # Directory for putting things only root should see.
     mkdir /mnt/secure 0700 root root
     # Create private mountpoint so we can MS_MOVE from staging
@@ -96,7 +100,7 @@ on init
     write /proc/sys/kernel/kptr_restrict 2
     write /proc/sys/kernel/dmesg_restrict 1
     write /proc/sys/vm/mmap_min_addr 32768
-    write /proc/sys/net/ipv4/ping_group_range "0 2147483647"
+	write /proc/sys/net/ipv4/ping_group_range "0 2147483647"
     write /proc/sys/kernel/sched_rt_runtime_us 950000
     write /proc/sys/kernel/sched_rt_period_us 1000000
 
@@ -135,6 +139,10 @@ on init
 # This is needed by any process that uses socket tagging.
     chmod 0644 /dev/xt_qtaguid
 
+# ko files for exfat
+    insmod /lib/modules/exfat_core.ko
+    insmod /lib/modules/exfat_fs.ko
+
 on fs
 # mount mtd partitions
     # Mount /system rw first to give the filesystem a chance to save a checkpoint
@@ -153,7 +161,7 @@ on post-fs
 
     # We chown/chmod /cache again so because mount is run as root + defaults
     chown system cache /cache
-    chmod 0771 /cache
+    chmod 0770 /cache
     # We restorecon /cache in case the cache partition has been reset.
     restorecon /cache
 
@@ -206,6 +214,10 @@ on post-fs-data
     chmod 0640 /data/dontpanic/apanic_threads
 
     write /proc/apanic_console 1
+
+    #SideSync
+    chown system system /dev/android_ssusbcon
+    chmod 0660 /dev/android_ssusbcon
 
     # create basic filesystem structure
     mkdir /data/misc 01771 system misc
@@ -267,13 +279,13 @@ on post-fs-data
     mkdir /data/mediadrm 0770 mediadrm mediadrm
 
 # [ SEC_MM_DRM
-    # [ save OMA DB, when upgrading from GB to ICS
-    # belows will be removed at KLP
-    mkdir /data/system/databases 0771 system system
-    copy /data/data/com.sec.android.providers.drm/databases/drmdatabase.db /data/system/databases/drmdatabase.db
-    chown system system /data/system/databases/drmdatabase.db
-    chmod 0774 /data/system/databases/drmdatabase.db
-    # ]
+    # sdrm
+    mkdir /efs/drm 0774 drm system
+    mkdir /efs/drm/sdrm 0774 drm system
+    mkdir /efs/drm/sdrm/data_agent 0774 drm system
+    restorecon /efs/drm
+    restorecon /efs/drm/sdrm
+    restorecon /efs/drm/data_agent
 
     # DRM directory creation
     mkdir /system/etc/security/.drm 0775
@@ -317,7 +329,7 @@ on post-fs-data
     chmod 0775 /efs/.files/.dx1
     chmod 0775 /efs/.files/.dm33
     chmod 0775 /efs/.files/.mp301
-
+    
     restorecon -R /efs
 # ]
 
@@ -343,7 +355,7 @@ on post-fs-data
     # Restorecon for backup data file
     mkdir /data/backup 0700 system system
     restorecon /data/backup
-
+    
 	#Restorecon /tombstones
     restorecon -R /tombstones
 	
@@ -362,7 +374,7 @@ on post-fs-data
     chown system system /dev/s5p-smem  
     
     # Restore context for /system at post-fs-data
-    #selinux_restore -s
+    selinux_restore -s
 
 on boot
     mount debugfs /sys/kernel/debug /sys/kernel/debug
@@ -442,11 +454,27 @@ on boot
     chmod 0660 /sys/module/mali/parameters/mali_dvfs_control
     chmod 0664 /sys/bus/platform/devices/s5p-tmu/lot_id
 
+    chown system system /sys/devices/system/cpu/cpufreq/interactive/timer_rate
+    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/timer_rate
+    chown system system /sys/devices/system/cpu/cpufreq/interactive/min_sample_time
+    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/min_sample_time
+    chown system system /sys/devices/system/cpu/cpufreq/interactive/hispeed_freq
+    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/hispeed_freq
+    chown system system /sys/devices/system/cpu/cpufreq/interactive/go_hispeed_load
+    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/go_hispeed_load
+    chown system system /sys/devices/system/cpu/cpufreq/interactive/above_hispeed_delay
+    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/above_hispeed_delay
+    chown system system /sys/devices/system/cpu/cpufreq/interactive/boost
+    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/boost
+    chown system system /sys/devices/system/cpu/cpufreq/interactive/boostpulse
+    chown system system /sys/devices/system/cpu/cpufreq/interactive/input_boost
+    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/input_boost
+
     # Assume SMP uses shared cpufreq policy for all CPUs
     chown system system /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
     chmod 0664 /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
     chown system system /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
-    chmod 0664 /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
+    chmod 0660 /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
     chown system system /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
     chmod 0664 /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
 
@@ -740,9 +768,9 @@ service auditd /system/bin/auditd -k
     disabled
     oneshot
 
-#service netlabels /system/bin/selinux-network.sh
-    #class core
-    #oneshot
+service netlabels /system/bin/selinux-network.sh
+    class core
+    oneshot
 
 on property:ro.debuggable=1
     start console
@@ -758,23 +786,15 @@ service adbd /sbin/adbd
 on property:ro.kernel.qemu=1
     start adbd
 
-#2013-01-02 system profiling
-service sysmon /system/bin/sysmon
-    class main
-    user root
-    oneshot
-
 service servicemanager /system/bin/servicemanager
     class core
     user system
     group system
     critical
-    onrestart restart healthd
     onrestart restart zygote
     onrestart restart media
     onrestart restart surfaceflinger
     onrestart restart drm
-    onrestart restart sensorhubservice
 
 service vold /system/bin/vold
     class core
@@ -951,7 +971,7 @@ on property:init.svc.bootanim=stopped
     restorecon /data/media/obb
     start auditd
     start freshsebool
-    #selinux_restore -e
+    selinux_restore -e
 
 # SE Android sebool
 service freshsebool /system/bin/freshsebool
@@ -959,6 +979,12 @@ service freshsebool /system/bin/freshsebool
     user root
     disabled
     oneshot
+
+service SIDESYNC_service /system/bin/ss_conn_daemon
+    class main
+    socket ss_conn_daemon stream 0666 system system
+    user system 
+    group inet net_raw
 
 # SAMSUNG DRS Service
 service drsd /system/bin/drsd

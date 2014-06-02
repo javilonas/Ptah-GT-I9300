@@ -11,7 +11,7 @@
 /dev/video12              0660   system     system
 /dev/video16              0660   system     system
 /dev/video20              0660   system     system
-/dev/fimg2d               0666   system     graphics
+/dev/fimg2d               0660   system     graphics
 /dev/i2c-2                0660   system     system
 /dev/i2c-5                0660   system     system
 # HDMI DDC

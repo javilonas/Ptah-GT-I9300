@@ -54,6 +54,9 @@ fi
 # Iniciar Zipalign
 /res/ext/zipalign.sh
 
+# Hack Reboot
+/res/ext/reboot_hack.sh
+
 # Remontar y Optimizar particiones con EXT4
 /res/ext/optimi_remount.sh
 
@@ -87,7 +90,7 @@ done
 # Iniciar Liberar Memoria
 /res/ext/libera_ram.sh
 
-/sbin/busybox sleep 8
+/sbin/busybox sleep 5
 
 sync
 
