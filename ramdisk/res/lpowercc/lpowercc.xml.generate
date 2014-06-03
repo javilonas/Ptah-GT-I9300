@@ -286,7 +286,7 @@ echo '
     <settingsPane name="Min Free kbytes" 
                   description="Modificando el valor (en bytes) de /proc/sys/vm/min_free_kbytes, lo que hacemos es redefinir el espacio de memoria libre de que dispone el kernel para cuando la necesita para el sistema, abrir una app, etc.. Lo que hace este ajuste es reservar un mínimo de memoria para el propio sistema. Valores recomendados: 1448k, 2048k, 2896k, 3642k, 4096k, 5792k, 8192k, 11584k, 12288k, 12360k, 16284k y 18360k. Dependerá de este valor el rendimiento de tu sistema">
 
-      <seekBar  description="El mínimo a poder seleccionar es 1448k y el máximo 18360k. Por defecto: 8192 kbytes." 
+      <seekBar  description="El mínimo a poder seleccionar es 1448k y el máximo 18360k. Por defecto: 12360 kbytes." 
                 name="Min Free kbytes" 
                 action="generic /proc/sys/vm/min_free_kbytes"
                 unit="kB" min="1448" reversed="false" step="1" max="18360"/>

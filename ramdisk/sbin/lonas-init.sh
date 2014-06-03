@@ -90,7 +90,7 @@ done
 # Iniciar Liberar Memoria
 /res/ext/libera_ram.sh
 
-/sbin/busybox sleep 5
+/sbin/busybox sleep 2
 
 sync
 
