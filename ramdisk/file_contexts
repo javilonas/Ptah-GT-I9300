@@ -217,8 +217,6 @@
 /mnt/asec(/.*)?         u:object_r:asec_apk_file:s0
 /data/app-asec(/.*)?    u:object_r:asec_image_file:s0
 #############################
-## faux kernel hacks
-/sys/devices/system/cpu.*/cpufreq(/.*)? --  u:object_r:sysfs_writable:s0
 
 #line 1 "vendor/samsung/common/sepolicy/file_contexts"
 ############################# 
@@ -342,8 +340,7 @@
 /system/lib(/.*)?	u:object_r:system_library_file:s0
 
 # Camera
-/data/ISP_CV                            u:object_r:camera_data_file:s0
-/dev/exynos-mem     
+/data/ISP_CV                            u:object_r:camera_data_file:s0 
 
 # Bluetooth
 /dev/ttySAC0                            u:object_r:hci_attach_dev:s0
@@ -364,6 +361,18 @@
 /dev/rfkill                             u:object_r:rfkill_device:s0
 /efs/wifi/.mac.info                     u:object_r:wifi_data_file:s0
 
+# Firmwares
+/system/vendor/firmware(/.*)?           u:object_r:firmware_camera:s0
+/system/vendor/firmware/mfc_fw.bin      u:object_r:firmware_mfc:s0
+/data/cfw(/.*)?                         u:object_r:firmware_camera:s0
+
+/cache/dalvik-cache(/.*)? u:object_r:dalvikcache_data_file:s0
+
+#############################
+# performance-related sysfs files (CM)
+/sys/kernel/mm/ksm(/.*)?       --          u:object_r:sysfs_writable:s0
+/sys/devices/system/cpu.*/cpufreq(/.*)? --  u:object_r:sysfs_devices_system_cpu:s0
+/sys/block/mmcblk0/queue/scheduler  --    u:object_r:sysfs_writable:s0
 ############################# 
 # DATA file
 #
