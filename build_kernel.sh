@@ -41,7 +41,7 @@ TOOLCHAIN="/home/lonas/Kernel_Lonas/toolchains/arm-cortex_a9-linux-gnueabihf-lin
 TOOLCHAIN_PATCH="/home/lonas/Kernel_Lonas/toolchains/arm-cortex_a9-linux-gnueabihf-linaro_4.9.1-2014.05/bin"
 ROOTFS_PATH="/home/lonas/Kernel_Lonas/Ptah-GT-I9300/ramdisk"
 RAMFS_TMP="/home/lonas/Kernel_Lonas/tmp/ramfs-source-sgs3"
-export KERNEL_VERSION="Ptah-2.4"
+export KERNEL_VERSION="Ptah-2.5"
 VERSION_KL="SAMMY"
 REVISION="RTM"
 
