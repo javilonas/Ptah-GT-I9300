@@ -9,6 +9,9 @@ echo "3" > /proc/sys/vm/drop_caches
 sleep 1
 echo "0" > /proc/sys/vm/drop_caches
 
+# decrease fs lease time
+echo "10" > /proc/sys/fs/lease-break-time
+
 # enable idle+LPA
 echo "2" > /sys/module/cpuidle_exynos4/parameters/enable_mask
 
@@ -17,6 +20,29 @@ echo "0" > /sys/devices/system/cpu/sched_mc_power_savings
 
 #disable cpuidle log
 echo "0" > /sys/module/cpuidle_exynos4/parameters/log_en
+
+# disable ASLR
+echo "0" > /proc/sys/kernel/randomize_va_space
+
+# pegasusq tweaks
+echo "20000" > /sys/devices/system/cpu/cpufreq/pegasusq/sampling_rate
+echo "10" > /sys/devices/system/cpu/cpufreq/pegasusq/cpu_up_rate
+echo "10" > /sys/devices/system/cpu/cpufreq/pegasusq/cpu_down_rate
+echo "500000" > /sys/devices/system/cpu/cpufreq/pegasusq/hotplug_freq_1_1
+echo "400000" > /sys/devices/system/cpu/cpufreq/pegasusq/hotplug_freq_2_0
+echo "800000" > /sys/devices/system/cpu/cpufreq/pegasusq/hotplug_freq_2_1
+echo "600000" > /sys/devices/system/cpu/cpufreq/pegasusq/hotplug_freq_3_0
+echo "800000" > /sys/devices/system/cpu/cpufreq/pegasusq/hotplug_freq_3_1
+echo "600000" > /sys/devices/system/cpu/cpufreq/pegasusq/hotplug_freq_4_0
+echo "200" > /sys/devices/system/cpu/cpufreq/pegasusq/hotplug_rq_1_1
+echo "200" > /sys/devices/system/cpu/cpufreq/pegasusq/hotplug_rq_2_0
+echo "300" > /sys/devices/system/cpu/cpufreq/pegasusq/hotplug_rq_2_1
+echo "300" > /sys/devices/system/cpu/cpufreq/pegasusq/hotplug_rq_3_0
+echo "400" > /sys/devices/system/cpu/cpufreq/pegasusq/hotplug_rq_3_1
+echo "400" > /sys/devices/system/cpu/cpufreq/pegasusq/hotplug_rq_4_0
+echo "2" > /sys/devices/system/cpu/cpufreq/pegasusq/sampling_down_factor
+echo "37" > /sys/devices/system/cpu/cpufreq/pegasusq/freq_step
+echo "85" > /sys/devices/system/cpu/cpufreq/pegasusq/up_threshold
 
 #Mali 400MP GPU threshold
 echo "40% 32% 60% 55% 60% 55% 60% 55%" > /sys/class/misc/gpu_control/gpu_clock_control
@@ -31,26 +57,55 @@ echo "8" > /proc/sys/vm/page-cluster
 echo "2" > /proc/sys/net/ipv6/conf/all/use_tempaddr
 
 # TCP tweaks
-echo "0" > /proc/sys/net/ipv4/tcp_timestamps;
-echo "1" > /proc/sys/net/ipv4/tcp_tw_reuse;
-echo "1" > /proc/sys/net/ipv4/tcp_sack;
-echo "1" > /proc/sys/net/ipv4/tcp_tw_recycle;
-echo "1" > /proc/sys/net/ipv4/tcp_window_scaling;
-echo "1" > /proc/sys/net/ipv4/tcp_moderate_rcvbuf;
-echo "1" > /proc/sys/net/ipv4/route/flush;
-echo "2" > /proc/sys/net/ipv4/tcp_syn_retries;
-echo "2" > /proc/sys/net/ipv4/tcp_synack_retries;
-echo "10" > /proc/sys/net/ipv4/tcp_fin_timeout;
-echo "0" > /proc/sys/net/ipv4/tcp_ecn;
-echo "524288" > /proc/sys/net/core/wmem_max;
-echo "524288" > /proc/sys/net/core/rmem_max;
-echo "262144" > /proc/sys/net/core/rmem_default;
-echo "262144" > /proc/sys/net/core/wmem_default;
-echo "20480" > /proc/sys/net/core/optmem_max;
-echo "6144 87380 524288" > /proc/sys/net/ipv4/tcp_wmem;
-echo "6144 87380 524288" > /proc/sys/net/ipv4/tcp_rmem;
-echo "4096" > /proc/sys/net/ipv4/udp_rmem_min;
-echo "4096" > /proc/sys/net/ipv4/udp_wmem_min;
+echo "1" > /proc/sys/net/ipv4/tcp_low_latency
+echo "1" > /proc/sys/net/ipv4/tcp_timestamps
+echo "1" > /proc/sys/net/ipv4/tcp_tw_reuse
+echo "1" > /proc/sys/net/ipv4/tcp_sack
+echo "1" > /proc/sys/net/ipv4/tcp_dsack
+echo "1" > /proc/sys/net/ipv4/tcp_tw_recycle
+echo "1" > /proc/sys/net/ipv4/tcp_window_scaling
+echo "1" > /proc/sys/net/ipv4/tcp_moderate_rcvbuf
+echo "1" > /proc/sys/net/ipv4/route/flush
+echo "2" > /proc/sys/net/ipv4/tcp_syn_retries
+echo "2" > /proc/sys/net/ipv4/tcp_synack_retries
+echo "10" > /proc/sys/net/ipv4/tcp_fin_timeout
+echo "2" > /proc/sys/net/ipv4/tcp_ecn
+echo "524288" > /proc/sys/net/core/wmem_max
+echo "524288" > /proc/sys/net/core/rmem_max
+echo "262144" > /proc/sys/net/core/rmem_default
+echo "262144" > /proc/sys/net/core/wmem_default
+echo "20480" > /proc/sys/net/core/optmem_max
+echo "6144 87380 524288" > /proc/sys/net/ipv4/tcp_wmem
+echo "6144 87380 524288" > /proc/sys/net/ipv4/tcp_rmem
+echo "4096" > /proc/sys/net/ipv4/udp_rmem_min
+echo "4096" > /proc/sys/net/ipv4/udp_wmem_min
+
+# reduce txqueuelen to 0 to switch from a packet queue to a byte one
+NET=`ls -d /sys/class/net/*`
+for i in $NET 
+do
+echo "0" > $i/tx_queue_len
+
+done
+
+LOOP=`ls -d /sys/block/loop*`
+RAM=`ls -d /sys/block/ram*`
+MMC=`ls -d /sys/block/mmc*`
+ZSWA=`ls -d /sys/block/vnswap*`
+
+for i in $LOOP $RAM $MMC $ZSWA
+do 
+echo "row" > $i/queue/scheduler
+echo "0" > $i/queue/add_random
+echo "0" > $i/queue/rotational
+echo "8192" > $i/queue/nr_requests
+echo "0" > $i/queue/iostats
+echo "2" > $i/queue/rq_affinity
+echo "1" > $i/queue/iosched/back_seek_penalty
+echo "2" > $i/queue/iosched/slice_idle
+echo "1" > $i/queue/iosched/low_latency
+
+done
 
 # Turn off debugging for certain modules
 echo "0" > /sys/module/wakelock/parameters/debug_mask
@@ -76,6 +131,41 @@ echo ARCH_POWER > /sys/kernel/debug/sched_features
 echo SYNC_WAKEUPS > /sys/kernel/debug/sched_features
 echo HRTICK > /sys/kernel/debug/sched_features
 
-# LMK minfree
-echo "8192,10240,12288,15360,20480,24576" > /sys/module/lowmemorykiller/parameters/minfree
+
+busy=/sbin/busybox;
+
+# lmk tweaks for fewer empty background processes
+minfree=6144,8192,12288,16384,24576,40960;
+lmk=/sys/module/lowmemorykiller/parameters/minfree;
+minboot=`cat $lmk`;
+while sleep 1; do
+  if [ `cat $lmk` != $minboot ]; then
+    [ `cat $lmk` != $minfree ] && echo $minfree > $lmk || exit;
+  fi;
+done &
+
+# wait for systemui and increase its priority
+while sleep 1; do
+  if [ `$busy pidof com.android.systemui` ]; then
+    systemui=`$busy pidof com.android.systemui`;
+    $busy renice -18 $systemui;
+    $busy echo -17 > /proc/$systemui/oom_adj;
+    $busy chmod 100 /proc/$systemui/oom_adj;
+    exit;
+  fi;
+done &
+
+# lmk whitelist for common launchers and increase launcher priority
+list="com.android.launcher com.sec.android.app.launcher com.google.android.googlequicksearchbox org.adw.launcher org.adwfreak.launcher net.alamoapps.launcher com.anddoes.launcher com.android.lmt com.chrislacy.actionlauncher.pro com.cyanogenmod.trebuchet com.gau.go.launcherex com.gtp.nextlauncher com.miui.mihome2 com.mobint.hololauncher com.mobint.hololauncher.hd com.qihoo360.launcher com.teslacoilsw.launcher com.teslacoilsw.launcher.prime com.tsf.shell org.zeam";
+while sleep 60; do
+  for class in $list; do
+    if [ `$busy pgrep $class | head -n 1` ]; then
+      launcher=`$busy pgrep $class`;
+      $busy echo -17 > /proc/$launcher/oom_adj;
+      $busy chmod 100 /proc/$launcher/oom_adj;
+      $busy renice -18 $launcher;
+    fi;
+  done;
+  exit;
+done &
 

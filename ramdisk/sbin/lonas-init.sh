@@ -45,9 +45,6 @@ fi
 # Iniciar Bootanimation personalizado
 /res/ext/bootanimation.sh
 
-# Iniciar fix MAC
-/res/ext/fixwifi.sh
-
 # Iniciar SQlite
 /res/ext/sqlite.sh
 
@@ -80,9 +77,6 @@ while ! /sbin/busybox pgrep android.process.acore ; do
   /sbin/busybox sleep 1
 done
   /sbin/busybox sleep 5
-
-# Iniciar MTP/adb
-/res/ext/usb_mtp.sh
 
 # Iniciar efs_backup
 /res/ext/efs_backup.sh

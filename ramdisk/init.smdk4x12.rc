@@ -1,7 +1,7 @@
 import init.smdk4x12.usb.rc
 import init.bt.rc
 import init.carrier.rc
-#import init.container.rc
+import init.container.rc
 
 on early-init
     mkdir /efs 0771 radio system
@@ -141,7 +141,7 @@ on post-fs-data
 
 on boot
     mount debugfs /sys/kernel/debug /sys/kernel/debug
-	write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor performance
+#    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor pegasusq
 
 # for AT distributor
     chown system radio /sys/module/cpuidle_exynos4/parameters/enable_mask
@@ -154,7 +154,7 @@ on boot
     setprop ro.build.product smdk4x12
     setprop ro.product.device smdk4x12
     # setprop ro.radio.noril yes
-    setprop ro.securestorage.knox true
+    # setprop ro.securestorage.knox true
 
 # mobicore
     mkdir /data/app/mcRegistry 0775 system system
