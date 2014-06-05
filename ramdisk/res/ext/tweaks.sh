@@ -135,7 +135,7 @@ echo HRTICK > /sys/kernel/debug/sched_features
 busy=/sbin/busybox;
 
 # lmk tweaks for fewer empty background processes
-minfree=6144,8192,12288,16384,24576,40960;
+minfree=2853,5632,24576,86016,96768,96768;
 lmk=/sys/module/lowmemorykiller/parameters/minfree;
 minboot=`cat $lmk`;
 while sleep 1; do
