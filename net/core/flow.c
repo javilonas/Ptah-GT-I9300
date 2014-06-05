@@ -76,6 +76,7 @@ static void flow_cache_new_hashrnd(unsigned long arg)
 	struct flow_cache *fc = (void *) arg;
 	int i;
 
+	put_online_cpus();
 	for_each_possible_cpu(i)
 		per_cpu_ptr(fc->percpu, i)->hash_rnd_recalc = 1;
 
@@ -408,6 +409,7 @@ static int __init flow_cache_init(struct flow_cache *fc)
 	if (!fc->percpu)
 		return -ENOMEM;
 
+	get_online_cpus();
 	for_each_online_cpu(i) {
 		if (flow_cache_cpu_prepare(fc, i))
 			return -ENOMEM;
@@ -416,6 +418,7 @@ static int __init flow_cache_init(struct flow_cache *fc)
 		.notifier_call = flow_cache_cpu,
 	};
 	register_hotcpu_notifier(&fc->hotcpu_notifier);
+	put_online_cpus();
 
 	setup_timer(&fc->rnd_timer, flow_cache_new_hashrnd,
 		    (unsigned long) fc);
