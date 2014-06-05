@@ -9,20 +9,38 @@ echo "3" > /proc/sys/vm/drop_caches
 sleep 1
 echo "0" > /proc/sys/vm/drop_caches
 
-# decrease fs lease time
-echo "10" > /proc/sys/fs/lease-break-time
-
-# enable idle+LPA
-echo "2" > /sys/module/cpuidle_exynos4/parameters/enable_mask
-
-# setting sched_mc_power_savings off default
-echo "0" > /sys/devices/system/cpu/sched_mc_power_savings
-
 #disable cpuidle log
 echo "0" > /sys/module/cpuidle_exynos4/parameters/log_en
 
-# disable ASLR
+#Mali 400MP GPU threshold
+echo "40% 32% 60% 55% 60% 55% 60% 55%" > /sys/class/misc/gpu_control/gpu_clock_control
+
+# Tweak kernel scheduler, less aggressive settings
+echo "500000" > /proc/sys/kernel/sched_min_granularity_ns
+echo "1000000" > /proc/sys/kernel/sched_latency_ns
+echo "100000" > /proc/sys/kernel/sched_wakeup_granularity_ns
+
+# Miscellaneous tweaks
+echo "524488" > /proc/sys/fs/file-max
+echo "33200" > /proc/sys/fs/inotify/max_queued_events
+echo "584" > /proc/sys/fs/inotify/max_user_instances
+echo "10696" > /proc/sys/fs/inotify/max_user_watches
+echo "0" > /proc/sys/vm/block_dump
+echo "5" > /proc/sys/vm/laptop_mode
+echo "0" > /proc/sys/vm/panic_on_oom 
+echo "8" > /proc/sys/vm/page-cluster
+echo "10" > /proc/sys/fs/lease-break-time
+echo "65836" > /proc/sys/kernel/msgmni
+echo "65836" > /proc/sys/kernel/msgmax
+echo "512 512000 256 2048" > /proc/sys/kernel/sem
+echo "268535656" > /proc/sys/kernel/shmmax
+echo "525488" > /proc/sys/kernel/threads-max
+echo "1" > /proc/sys/vm/oom_kill_allocating_task
+
+# Tweaks internos
+echo "2" > /sys/devices/system/cpu/sched_mc_power_savings
 echo "0" > /proc/sys/kernel/randomize_va_space
+echo "3" > /sys/module/cpuidle_exynos4/parameters/enable_mask
 
 # pegasusq tweaks
 echo "20000" > /sys/devices/system/cpu/cpufreq/pegasusq/sampling_rate
@@ -43,15 +61,6 @@ echo "400" > /sys/devices/system/cpu/cpufreq/pegasusq/hotplug_rq_4_0
 echo "2" > /sys/devices/system/cpu/cpufreq/pegasusq/sampling_down_factor
 echo "37" > /sys/devices/system/cpu/cpufreq/pegasusq/freq_step
 echo "85" > /sys/devices/system/cpu/cpufreq/pegasusq/up_threshold
-
-#Mali 400MP GPU threshold
-echo "40% 32% 60% 55% 60% 55% 60% 55%" > /sys/class/misc/gpu_control/gpu_clock_control
-
-# Miscellaneous tweaks
-echo "0" > /proc/sys/vm/block_dump
-echo "5" > /proc/sys/vm/laptop_mode
-echo "0" > /proc/sys/vm/panic_on_oom 
-echo "8" > /proc/sys/vm/page-cluster
 
 # IPv6 privacy tweak
 echo "2" > /proc/sys/net/ipv6/conf/all/use_tempaddr
@@ -135,7 +144,7 @@ echo HRTICK > /sys/kernel/debug/sched_features
 busy=/sbin/busybox;
 
 # lmk tweaks for fewer empty background processes
-minfree=2853,5632,24576,86016,96768,96768;
+minfree=12288,15360,18432,21504,24576,30720;
 lmk=/sys/module/lowmemorykiller/parameters/minfree;
 minboot=`cat $lmk`;
 while sleep 1; do
